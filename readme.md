@@ -1,3 +1,7 @@
+# granum-demo
+
+A demo project for Granum Interviews.
+
 ## toolchain
 
 created with some scaffold tools
@@ -9,3 +13,7 @@ dotnet new webapi -n Granum.Api -o Granum.Api
 dotnet new nunit -n Granum.Tests -o Granum.Tests && dotnet add $ROOT/apps/backend/Granum.Tests/Granum.Tests.csproj reference $ROOT/apps/backend/Granum.Api/Granum.Api.csproj
 dotnet new sln -n Granum && dotnet sln Granum.sln add Granum.Api/Granum.Api.csproj Granum.Tests/Granum.Tests.csproj
 ```
+
+## commit conventions
+
+This project follows [Conventional Commits](https://www.conventionalcommits.org/) with these prefixes:
