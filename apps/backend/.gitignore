@@ -1,0 +1,16 @@
+# Build output folders (currently generated)
+bin/
+obj/
+
+# macOS system files (present in project)
+.DS_Store
+
+# JetBrains Rider (since you mentioned using Rider)
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# Temporary and cache files
+*.tmp
+*.cache
