@@ -12,7 +12,27 @@ Accept: application/x-yaml
 
 # Customer API Endpoint
 ###
+GET http://localhost:5134/api/customers
+Accept: application/json
+
+# Customer API Endpoint
+###
 GET http://localhost:5134/api/customer
+Accept: application/json
+
+# Customer API Endpoint
+###
+GET http://localhost:5134/api/customer/2
+Accept: application/json
+
+# Customer API Endpoint
+###
+GET http://localhost:5134/api/contractors
+Accept: application/json
+
+# Customer API Endpoint
+###
+GET http://localhost:5134/api/contractor/1
 Accept: application/json
 
 ###
