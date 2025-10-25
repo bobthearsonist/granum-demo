@@ -9,17 +9,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 //TODO add Scalar UI
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase("GranumDb")); //TODO use a factory so you can switch between providers for tests and production
 builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>)); //TODO use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 builder.Services.AddScoped(typeof(IUserService<>), typeof(UserService<>));
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson();
 
 using var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 dbContext.Database.EnsureCreated();
-var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
