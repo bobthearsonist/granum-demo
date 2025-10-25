@@ -12,7 +12,8 @@
 - [X] implement a database schema using architecture plans
 - [X] implement a repository
 - [X] implement a controller
-- [ ] implement a service
+- [x] implement a service
+- [ ] define fully generic UserController class
 - [ ] implement unit tests for each layer
 - [ ] implement integration tests
 - [ ] come back to openapi page

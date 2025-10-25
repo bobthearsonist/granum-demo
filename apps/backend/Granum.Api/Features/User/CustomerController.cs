@@ -7,10 +7,9 @@ namespace Granum.Api.Features.User;
 public class CustomerController : Controller
 {
     [HttpGet()]
-    public async Task<IActionResult> GetAllCustomerAsync([FromServices] IUserRepository<Customer> customerRepository)
+    public async Task<IActionResult> GetAllCustomerAsync([FromServices] IUserService<Customer> customerService)
     {
-        //TODO this should be an injected service
-        var customers = await customerRepository.GetAllAsync();
+        var customers = await customerService.GetAllAsync();
         return Ok(customers);
     }
 }
