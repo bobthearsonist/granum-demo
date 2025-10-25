@@ -1,6 +1,18 @@
-@Granum.Api_HostAddress = http://localhost:5134
+@env = dev
 
-GET {{Granum.Api_HostAddress}}/weatherforecast/
+###
+# OpenAPI Specification (JSON)
+GET http://localhost:5134/openapi/v1.json
+Accept: application/json
+
+# OpenAPI Specification (YAML)
+###
+GET http://localhost:5134/openapi/v1.yaml
+Accept: application/x-yaml
+
+# Customer API Endpoint
+###
+GET http://localhost:5134/api/customer
 Accept: application/json
 
 ###
