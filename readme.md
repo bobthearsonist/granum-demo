@@ -2,6 +2,17 @@
 
 A demo project for Granum Interviews.
 
+## Architecture Documentation
+
+I used some tooling to generate a handful of (incomplete) UML diagrams from my initial sketches.
+
+- **[Entity Relationship Diagram](entity-diagram.md)** - Database schema and entity relationships
+- **[Class Diagram](class-diagram.md)** - Object-oriented class structure and design patterns
+- **[Sequence Diagram](sequence-diagram.md)** - Workflow and actor interactions
+
+- [Initial System Sketch](initial-system-sketch.png) - Original system concept diagram
+- [Initial Sequence Sketch](initial-sequence-sketch.png) - Original workflow sketch
+
 ## toolchain
 
 created with some scaffold tools
