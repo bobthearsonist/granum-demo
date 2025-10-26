@@ -1,6 +1,5 @@
 using System.Net;
 using FluentAssertions;
-using Granum.IntegrationTests.Infrastructure;
 
 namespace Granum.IntegrationTests.Features.User
 {

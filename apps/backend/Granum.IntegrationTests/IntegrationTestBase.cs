@@ -1,18 +1,18 @@
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using Granum.Api.Infrastructure;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Program = Granum.Api.Program;
 
-namespace Granum.IntegrationTests.Infrastructure
+namespace Granum.IntegrationTests
 {
     [Category("Integration")]
     public abstract class IntegrationTestBase
     {
-        protected WebApplicationFactory<Program> Factory { get; private set; } = null!;
-        protected HttpClient Client { get; private set; } = null!;
+        private WebApplicationFactory<Program> Factory { get; set; } = null!;
+        private HttpClient Client { get; set; } = null!;
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {

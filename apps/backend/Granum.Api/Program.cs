@@ -1,9 +1,7 @@
 using FluentValidation;
 using Granum.Api.Features.User;
 using Granum.Api.Infrastructure;
-using Granum.Api.Infrastructure.Middleware;
 using Microsoft.EntityFrameworkCore;
-
 using static Microsoft.AspNetCore.Builder.WebApplication;
 
 var builder = CreateBuilder(args);
@@ -19,7 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>)); //TODO use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 builder.Services.AddScoped(typeof(IUserService<>), typeof(UserService<>));
 
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<Granum.Api.Program>();
 builder.Services
     .AddControllers()
     .AddNewtonsoftJson();
@@ -43,4 +41,7 @@ app.MapControllers();
 app.Run();
 
 // Make the implicit Program class public so integration tests can access it
-public partial class Program { }
+namespace Granum.Api
+{
+    public partial class Program { }
+}

@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Granum.Api.Infrastructure.Middleware;
+namespace Granum.Api.Infrastructure;
 
 public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
