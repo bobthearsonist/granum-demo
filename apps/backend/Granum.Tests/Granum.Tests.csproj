@@ -27,4 +27,8 @@
     <ProjectReference Include="..\Granum.Api\Granum.Api.csproj" />
   </ItemGroup>
 
+  <Target Name="BuildApiBeforeTests" BeforeTargets="Build">
+    <MSBuild Projects="..\Granum.Api\Granum.Api.csproj" Targets="Build" />
+  </Target>
+
 </Project>

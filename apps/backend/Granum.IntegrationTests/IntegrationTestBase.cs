@@ -13,6 +13,7 @@ namespace Granum.IntegrationTests
     {
         private WebApplicationFactory<Program> Factory { get; set; } = null!;
         private HttpClient Client { get; set; } = null!;
+        private string DatabaseName { get; set; } = null!;
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
@@ -23,6 +24,8 @@ namespace Granum.IntegrationTests
         [SetUp]
         public virtual void SetUp()
         {
+            DatabaseName = $"IntegrationTest_{Guid.NewGuid()}";
+
             Factory = new WebApplicationFactory<Program>()
                 .WithWebHostBuilder(builder =>
                 {
@@ -31,7 +34,10 @@ namespace Granum.IntegrationTests
                         RemoveDbContext<AppDbContext>(services);
 
                         services.AddDbContext<AppDbContext>(options =>
-                            options.UseInMemoryDatabase($"IntegrationTest_{Guid.NewGuid()}"));
+                        {
+                            options.UseInMemoryDatabase(DatabaseName);
+                            options.EnableSensitiveDataLogging();
+                        });
                     });
                 });
 
@@ -72,11 +78,17 @@ namespace Granum.IntegrationTests
         }
 
         private static void RemoveDbContext<TContext>(IServiceCollection services)
-            where TContext : class
+            where TContext : DbContext
         {
-            var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(TContext));
-            if (descriptor != null)
+            var descriptors = services.Where(d =>
+                d.ServiceType == typeof(DbContextOptions<TContext>) ||
+                d.ServiceType == typeof(DbContextOptions) ||
+                d.ServiceType == typeof(TContext)).ToList();
+
+            foreach (var descriptor in descriptors)
+            {
                 services.Remove(descriptor);
+            }
         }
     }
 }
