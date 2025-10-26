@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Granum.Api.Features.User;
 
+[ApiController]
 public abstract class UserControllerBase<TUser>(
     IUserService<TUser> userService,
     ILogger logger) : Controller
@@ -28,7 +29,10 @@ public abstract class UserControllerBase<TUser>(
         var user = await userService.GetByIdAsync(id);
 
         patchDoc.ApplyTo(user, ModelState);
-        if (!ModelState.IsValid) throw new ArgumentException("Invalid patch document.", nameof(patchDoc));
+        if (!ModelState.IsValid) BadRequest(patchDoc);
+
+        var (isValid, errorResult) = await user.ValidateAsync(HttpContext.RequestServices);
+        if (!isValid) return errorResult!;
 
         await userService.UpdateAsync(user);
         return NoContent();

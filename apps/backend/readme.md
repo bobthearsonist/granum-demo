@@ -14,7 +14,7 @@
 - [X] implement a controller
 - [x] implement a service
 - [x] define fully generic UserController class
-- [ ] setup exception handling middleware for restful repsonses with thin controllers
+- [x] setup exception handling middleware for restful repsonses with thin controllers
 - [ ] implement unit tests for each layer
 - [ ] implement integration tests
 - [ ] come back to openapi page

@@ -5,42 +5,79 @@
 GET http://localhost:5134/openapi/v1.json
 Accept: application/json
 
-# OpenAPI Specification (YAML)
 ###
+# OpenAPI Specification (YAML)
 GET http://localhost:5134/openapi/v1.yaml
 Accept: application/x-yaml
 
-# Customer API Endpoint
 ###
+# Customer API Endpoint - Get all customers
 GET http://localhost:5134/api/customers
 Accept: application/json
 
-# Customer API Endpoint
 ###
+# Customer API Endpoint - Get single customer (alias)
 GET http://localhost:5134/api/customer
 Accept: application/json
 
-# Customer API Endpoint
 ###
+# Customer API Endpoint - Get customer by ID
 GET http://localhost:5134/api/customer/2
 Accept: application/json
 
-# Customer API Endpoint
 ###
+# Contractor API Endpoint - Get all contractors
 GET http://localhost:5134/api/contractors
 Accept: application/json
 
-# Customer API Endpoint
 ###
+# Contractor API Endpoint - Get contractor by ID
 GET http://localhost:5134/api/contractor/1
 Accept: application/json
 
-# Customer API Endpoint
 ###
+# Contractor API Endpoint - Update contractor (valid)
 PATCH http://localhost:5134/api/contractor/1
 Content-Type: application/json-patch+json
 
 [
   { "op": "replace", "path": "/name", "value": "New Name" }
 ]
+
 ###
+# Contractor API Endpoint - POST with name exceeding MaxLength
+POST http://localhost:5134/api/contractor
+Content-Type: application/json
+
+{
+  "name": "New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor"
+}
+
+###
+# Contractor API Endpoint - POST with FluentValidation violation (admin name)
+POST http://localhost:5134/api/contractor
+Content-Type: application/json
+
+{
+  "name": "admin"
+}
+
+###
+# Contractor API Endpoint - PATCH with name exceeding MaxLength
+PATCH http://localhost:5134/api/contractor/1
+Content-Type: application/json-patch+json
+
+[
+  { "op": "replace", "path": "/name", "value": "New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor New Contractor"
+  }
+]
+
+###
+# Contractor API Endpoint - PATCH with FluentValidation violation (admin name)
+PATCH http://localhost:5134/api/contractor/1
+Content-Type: application/json-patch+json
+
+[
+  { "op": "replace", "path": "/name", "value": "admin"
+  }
+]
