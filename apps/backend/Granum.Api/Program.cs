@@ -20,7 +20,7 @@ builder.Services.AddScoped(typeof(IUserService<>), typeof(UserService<>));
 builder.Services.AddValidatorsFromAssemblyContaining<Granum.Api.Program>();
 builder.Services
     .AddControllers()
-    .AddNewtonsoftJson();
+    .AddCustomJsonConfiguration();
 
 using var app = builder.Build();
 using var scope = app.Services.CreateScope();
@@ -43,5 +43,5 @@ app.Run();
 // Make the implicit Program class public so integration tests can access it
 namespace Granum.Api
 {
-    public partial class Program { }
+    public class Program { }
 }
