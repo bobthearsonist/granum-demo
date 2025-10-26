@@ -1,4 +1,4 @@
-namespace Granum.Api.Infrastructure.Repositories;
+namespace Granum.Api.Infrastructure;
 
 public interface IRepository<T> where T : class {
     Task<T?> GetByIdAsync(int id);

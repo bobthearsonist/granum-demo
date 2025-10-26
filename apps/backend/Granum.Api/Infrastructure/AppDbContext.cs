@@ -4,7 +4,7 @@ using Granum.Api.Features.Service;
 using Granum.Api.Features.User;
 using Microsoft.EntityFrameworkCore;
 
-namespace Granum.Api.Infrastructure.Data;
+namespace Granum.Api.Infrastructure;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) // TODO use interface and DbContext from EF Core
 {

@@ -1,5 +1,4 @@
-using Granum.Api.Infrastructure.Data;
-using Granum.Api.Infrastructure.Repositories;
+using Granum.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Granum.Api.Features.User;

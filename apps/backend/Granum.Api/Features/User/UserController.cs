@@ -1,3 +1,4 @@
+using Granum.Api.Infrastructure;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,19 +18,17 @@ public abstract class UserControllerBase<TUser>(
         => Ok(await userService.GetByIdAsync(id));
 
     [HttpPost]
+    [ValidateModel]
     public async Task<IActionResult> Create(TUser user)
-        => Ok(await userService.CreateAsync(user));
+        => CreatedAtAction(nameof(Get), await userService.CreateAsync(user));
 
     [HttpPatch("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] JsonPatchDocument<TUser> patchDoc)
     {
         var user = await userService.GetByIdAsync(id);
-        if (user is null) return NotFound();
-
-        logger.LogInformation("Patching user {UserId} with {PatchDocument}", id, patchDoc);
 
         patchDoc.ApplyTo(user, ModelState);
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+        if (!ModelState.IsValid) throw new ArgumentException("Invalid patch document.", nameof(patchDoc));
 
         await userService.UpdateAsync(user);
         return NoContent();
