@@ -17,7 +17,9 @@
 - [x] setup exception handling middleware for restful repsonses with thin controllers
 - [x] implement unit tests for each layer
   (up until this point AI tools had been used exclusively for reference. The code written is my own based on the architecture plans and patterns I have used in the past.)
-- [x] implement integration tests (gherkin, taiko)
+- [x] implement controller integration tests (gherkin, taiko)
+- [x] fix issues found by controller integration tests
+- [ ] implement database integration tests
 - [ ] come back to openapi page
 - [ ] use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 - [ ] define an openapi spec to generate the rest of the controllers
@@ -30,6 +32,7 @@
 
 after you have a UI going... 
 - [ ] implement DTOs and mappers (automap?)
+- [ ] implement end-to-end-testing
 
 nice to haves
 - [ ] setup editorconfig
