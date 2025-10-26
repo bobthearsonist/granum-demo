@@ -20,7 +20,10 @@ public abstract class UserControllerBase<TUser>(
     [HttpPost]
     [ValidateModel]
     public async Task<IActionResult> Create(TUser user)
-        => CreatedAtAction(nameof(Get), await userService.CreateAsync(user));
+    {
+        var createdUser = await userService.CreateAsync(user);
+        return CreatedAtAction(nameof(Get), new { id = createdUser.Id }, createdUser);
+    }
 
     [HttpPatch("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] JsonPatchDocument<TUser> patchDoc)
