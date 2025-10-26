@@ -8,6 +8,8 @@ public interface IUserRepository<TUser> : IRepository<TUser> where TUser : User{
     Task<TUser?> FindByExactNameAsync(string name);
 }
 
+// TODO sort functions by name DESC
+// TODO inject context interface not concrete instance
 public class UserRepository<TUser>(AppDbContext context) : IUserRepository<TUser> where TUser : User
 {
     public Task<TUser?> GetByIdAsync(int id) => context.Set<TUser>().FindAsync(id).AsTask();

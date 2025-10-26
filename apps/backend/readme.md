@@ -16,7 +16,7 @@
 - [x] define fully generic UserController class
 - [x] setup exception handling middleware for restful repsonses with thin controllers
 - [ ] implement unit tests for each layer
-- [ ] implement integration tests
+- [ ] implement integration tests (gherkin, taiko)
 - [ ] come back to openapi page
 - [ ] use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 - [ ] define an openapi spec to generate the rest of the controllers
