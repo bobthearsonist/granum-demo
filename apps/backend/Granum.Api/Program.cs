@@ -29,9 +29,9 @@ dbContext.Database.EnsureCreated();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    // not this shows whats implemented not whats in the spec file
     app.MapOpenApi();
     app.MapScalarApiReference();
 }

@@ -1,0 +1,1637 @@
+openapi: 3.0.0
+info:
+  title: Granum API
+  description: Comprehensive lawn and tree service estimate management platform
+  version: 1.0.0
+  contact:
+    name: Granum Support
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: https://localhost:5001
+    description: Development server (HTTPS)
+
+tags:
+  - name: Customers
+    description: Customer management
+  - name: Contractors
+    description: Contractor management
+  - name: Service Locations
+    description: Property/location management with features
+  - name: Service Types
+    description: Service catalog with pricing formulas
+  - name: Service Feature Factors
+    description: Pricing multipliers for service types
+  - name: Location Features
+    description: Physical property measurements
+  - name: Estimates
+    description: Estimate creation and management
+  - name: Line Items
+    description: Individual services within estimates
+  - name: Recurring Events
+    description: Scheduled service occurrences
+
+paths:
+  /api/customers:
+    get:
+      tags:
+        - Customers
+      summary: Get all customers
+      operationId: getCustomers
+      responses:
+        '200':
+          description: List of all customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    post:
+      tags:
+        - Customers
+      summary: Create a new customer
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '201':
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/customers/{id}:
+    get:
+      tags:
+        - Customers
+      summary: Get customer by ID
+      operationId: getCustomer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Customer details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Customers
+      summary: Update customer (JSON Patch)
+      operationId: updateCustomer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Customer updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/contractors:
+    get:
+      tags:
+        - Contractors
+      summary: Get all contractors
+      operationId: getContractors
+      responses:
+        '200':
+          description: List of all contractors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contractor'
+    post:
+      tags:
+        - Contractors
+      summary: Create a new contractor
+      operationId: createContractor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractorCreate'
+      responses:
+        '201':
+          description: Contractor created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contractor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/contractors/{id}:
+    get:
+      tags:
+        - Contractors
+      summary: Get contractor by ID
+      operationId: getContractor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Contractor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contractor'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Contractors
+      summary: Update contractor (JSON Patch)
+      operationId: updateContractor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Contractor updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/service-locations:
+    get:
+      tags:
+        - Service Locations
+      summary: Get all service locations
+      operationId: getServiceLocations
+      responses:
+        '200':
+          description: List of all service locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceLocation'
+    post:
+      tags:
+        - Service Locations
+      summary: Create a new service location
+      operationId: createServiceLocation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceLocationCreate'
+      responses:
+        '201':
+          description: Service location created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceLocation'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/service-locations/{id}:
+    get:
+      tags:
+        - Service Locations
+      summary: Get service location by ID
+      operationId: getServiceLocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Service location details with features
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceLocationWithFeatures'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Service Locations
+      summary: Update service location (JSON Patch)
+      operationId: updateServiceLocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Service location updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags:
+        - Service Locations
+      summary: Delete service location
+      operationId: deleteServiceLocation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Service location deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/service-locations/{locationId}/features:
+    get:
+      tags:
+        - Location Features
+      summary: Get all features for a location
+      operationId: getLocationFeatures
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of location features
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LocationFeature'
+    post:
+      tags:
+        - Location Features
+      summary: Add a feature to a location
+      operationId: createLocationFeature
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationFeatureCreate'
+      responses:
+        '201':
+          description: Location feature created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationFeature'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/service-locations/{locationId}/features/{featureId}:
+    get:
+      tags:
+        - Location Features
+      summary: Get location feature by ID
+      operationId: getLocationFeature
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Location feature details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationFeature'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Location Features
+      summary: Update location feature (JSON Patch)
+      operationId: updateLocationFeature
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Location feature updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags:
+        - Location Features
+      summary: Delete location feature
+      operationId: deleteLocationFeature
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Location feature deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/service-types:
+    get:
+      tags:
+        - Service Types
+      summary: Get all service types
+      operationId: getServiceTypes
+      responses:
+        '200':
+          description: List of all service types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceType'
+    post:
+      tags:
+        - Service Types
+      summary: Create a new service type
+      operationId: createServiceType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceTypeCreate'
+      responses:
+        '201':
+          description: Service type created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/service-types/{id}:
+    get:
+      tags:
+        - Service Types
+      summary: Get service type by ID
+      operationId: getServiceType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Service type details with feature factors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceTypeWithFactors'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Service Types
+      summary: Update service type (JSON Patch)
+      operationId: updateServiceType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Service type updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags:
+        - Service Types
+      summary: Delete service type
+      operationId: deleteServiceType
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Service type deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/service-types/{typeId}/factors:
+    get:
+      tags:
+        - Service Feature Factors
+      summary: Get all factors for a service type
+      operationId: getServiceFeatureFactors
+      parameters:
+        - name: typeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of service feature factors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceFeatureFactor'
+    post:
+      tags:
+        - Service Feature Factors
+      summary: Add a pricing factor to a service type
+      operationId: createServiceFeatureFactor
+      parameters:
+        - name: typeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceFeatureFactorCreate'
+      responses:
+        '201':
+          description: Service feature factor created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceFeatureFactor'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/service-types/{typeId}/factors/{factorId}:
+    get:
+      tags:
+        - Service Feature Factors
+      summary: Get service feature factor by ID
+      operationId: getServiceFeatureFactor
+      parameters:
+        - name: typeId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: factorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Service feature factor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceFeatureFactor'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Service Feature Factors
+      summary: Update service feature factor (JSON Patch)
+      operationId: updateServiceFeatureFactor
+      parameters:
+        - name: typeId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: factorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Service feature factor updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags:
+        - Service Feature Factors
+      summary: Delete service feature factor
+      operationId: deleteServiceFeatureFactor
+      parameters:
+        - name: typeId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: factorId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Service feature factor deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/estimates:
+    get:
+      tags:
+        - Estimates
+      summary: Get all estimates
+      operationId: getEstimates
+      parameters:
+        - name: customerId
+          in: query
+          schema:
+            type: integer
+          description: Filter by customer ID
+      responses:
+        '200':
+          description: List of all estimates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Estimate'
+    post:
+      tags:
+        - Estimates
+      summary: Create a new estimate
+      operationId: createEstimate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstimateCreate'
+      responses:
+        '201':
+          description: Estimate created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Estimate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/estimates/{id}:
+    get:
+      tags:
+        - Estimates
+      summary: Get estimate by ID
+      operationId: getEstimate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Estimate details with line items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateWithLineItems'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Estimates
+      summary: Update estimate (JSON Patch)
+      operationId: updateEstimate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Estimate updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags:
+        - Estimates
+      summary: Delete estimate
+      operationId: deleteEstimate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Estimate deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/estimates/{estimateId}/line-items:
+    get:
+      tags:
+        - Line Items
+      summary: Get all line items for an estimate
+      operationId: getLineItems
+      parameters:
+        - name: estimateId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of line items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LineItem'
+    post:
+      tags:
+        - Line Items
+      summary: Add a line item to an estimate
+      operationId: createLineItem
+      parameters:
+        - name: estimateId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineItemCreate'
+      responses:
+        '201':
+          description: Line item created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/estimates/{estimateId}/line-items/{lineItemId}:
+    get:
+      tags:
+        - Line Items
+      summary: Get line item by ID
+      operationId: getLineItem
+      parameters:
+        - name: estimateId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: lineItemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Line item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LineItem'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Line Items
+      summary: Update line item (JSON Patch)
+      operationId: updateLineItem
+      parameters:
+        - name: estimateId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: lineItemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Line item updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags:
+        - Line Items
+      summary: Delete line item
+      operationId: deleteLineItem
+      parameters:
+        - name: estimateId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: lineItemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Line item deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/estimates/{id}/calculate:
+    post:
+      tags:
+        - Estimates
+      summary: Recalculate estimate total and projected annual cost
+      operationId: calculateEstimate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Calculated estimate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EstimateCalculation'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/recurring-events:
+    get:
+      tags:
+        - Recurring Events
+      summary: Get all recurring events
+      operationId: getRecurringEvents
+      parameters:
+        - name: estimateId
+          in: query
+          schema:
+            type: integer
+          description: Filter by estimate ID
+        - name: status
+          in: query
+          schema:
+            type: string
+          description: Filter by status (scheduled, completed, cancelled)
+      responses:
+        '200':
+          description: List of recurring events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecurringEvent'
+    post:
+      tags:
+        - Recurring Events
+      summary: Create a recurring event
+      operationId: createRecurringEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecurringEventCreate'
+      responses:
+        '201':
+          description: Recurring event created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringEvent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/recurring-events/{id}:
+    get:
+      tags:
+        - Recurring Events
+      summary: Get recurring event by ID
+      operationId: getRecurringEvent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Recurring event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringEvent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags:
+        - Recurring Events
+      summary: Update recurring event (JSON Patch)
+      operationId: updateRecurringEvent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '204':
+          description: Recurring event updated successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+    delete:
+      tags:
+        - Recurring Events
+      summary: Delete recurring event
+      operationId: deleteRecurringEvent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Recurring event deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/recurring-events/{id}/complete:
+    post:
+      tags:
+        - Recurring Events
+      summary: Mark recurring event as completed
+      operationId: completeRecurringEvent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Event marked as completed
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+  /api/recurring-events/{id}/reschedule:
+    post:
+      tags:
+        - Recurring Events
+      summary: Reschedule a recurring event
+      operationId: rescheduleRecurringEvent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+      responses:
+        '200':
+          description: Event rescheduled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringEvent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
+components:
+  schemas:
+    # Enumerations
+    FrequencyType:
+      type: string
+      enum: [DAYS, WEEKS, MONTHS, ONE_TIME, AS_NEEDED]
+      description: Frequency type for recurring services
+
+    ServiceCategory:
+      type: string
+      enum: [LAWN, TREE]
+      description: Service category classification
+
+    BillingType:
+      type: string
+      enum: [ONE_TIME, RECURRING]
+      description: Billing type for services
+
+    FeatureType:
+      type: string
+      enum: [TREES, DRIVEWAY, EDGES, BEDS, ACREAGE]
+      description: Type of location feature
+
+    MeasurementUnit:
+      type: string
+      enum: [COUNT, SQUARE_FEET, LINEAR_FEET, ACRES]
+      description: Unit of measurement for features
+
+    EventStatus:
+      type: string
+      enum: [SCHEDULED, COMPLETED, CANCELLED]
+      description: Status of recurring event
+
+    # Value Objects
+    Frequency:
+      type: object
+      required:
+        - type
+        - value
+      properties:
+        type:
+          $ref: '#/components/schemas/FrequencyType'
+        value:
+          type: integer
+          description: Numeric value for frequency (e.g., 2 for every 2 weeks)
+
+    # Base User
+    User:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          description: User ID
+        name:
+          type: string
+          maxLength: 100
+          description: User name
+
+    # Customer
+    Customer:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          description: Customer entity
+
+    CustomerCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Customer name
+
+    # Contractor
+    Contractor:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          description: Contractor entity
+
+    ContractorCreate:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          description: Contractor name
+
+    # Location Feature
+    LocationFeature:
+      type: object
+      required:
+        - featureType
+        - measurement
+        - unit
+      properties:
+        id:
+          type: integer
+          description: Feature ID
+        locationId:
+          type: integer
+          description: Parent location ID
+        featureType:
+          $ref: '#/components/schemas/FeatureType'
+        measurement:
+          type: number
+          format: float
+          description: Measured value
+        unit:
+          $ref: '#/components/schemas/MeasurementUnit'
+        description:
+          type: string
+          description: Optional description
+
+    LocationFeatureCreate:
+      type: object
+      required:
+        - featureType
+        - measurement
+        - unit
+      properties:
+        featureType:
+          $ref: '#/components/schemas/FeatureType'
+        measurement:
+          type: number
+          format: float
+        unit:
+          $ref: '#/components/schemas/MeasurementUnit'
+        description:
+          type: string
+
+    # Service Location
+    ServiceLocation:
+      type: object
+      required:
+        - name
+        - address
+        - customerId
+      properties:
+        id:
+          type: integer
+          description: Location ID
+        customerId:
+          type: integer
+          description: Owner customer ID
+        name:
+          type: string
+          maxLength: 255
+          description: Location name
+        address:
+          type: string
+          description: Property address
+
+    ServiceLocationCreate:
+      type: object
+      required:
+        - name
+        - address
+        - customerId
+      properties:
+        customerId:
+          type: integer
+        name:
+          type: string
+          maxLength: 255
+        address:
+          type: string
+
+    ServiceLocationWithFeatures:
+      allOf:
+        - $ref: '#/components/schemas/ServiceLocation'
+        - type: object
+          properties:
+            features:
+              type: array
+              items:
+                $ref: '#/components/schemas/LocationFeature'
+
+    # Service Feature Factor
+    ServiceFeatureFactor:
+      type: object
+      required:
+        - featureType
+        - multiplier
+      properties:
+        id:
+          type: integer
+          description: Factor ID
+        serviceTypeId:
+          type: integer
+          description: Parent service type ID
+        featureType:
+          $ref: '#/components/schemas/FeatureType'
+        multiplier:
+          type: number
+          format: float
+          description: Price multiplier for this feature
+        calculationNotes:
+          type: string
+          description: Documentation of calculation logic
+
+    ServiceFeatureFactorCreate:
+      type: object
+      required:
+        - featureType
+        - multiplier
+      properties:
+        featureType:
+          $ref: '#/components/schemas/FeatureType'
+        multiplier:
+          type: number
+          format: float
+        calculationNotes:
+          type: string
+
+    # Service Type
+    ServiceType:
+      type: object
+      required:
+        - name
+        - description
+        - category
+        - billingType
+      properties:
+        id:
+          type: integer
+          description: Service type ID
+        name:
+          type: string
+          maxLength: 255
+          description: Service name
+        description:
+          type: string
+          maxLength: 1024
+          description: Service description
+        category:
+          $ref: '#/components/schemas/ServiceCategory'
+        billingType:
+          $ref: '#/components/schemas/BillingType'
+        pricingFormula:
+          type: string
+          description: Documentation of pricing calculation
+
+    ServiceTypeCreate:
+      type: object
+      required:
+        - name
+        - description
+        - category
+        - billingType
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 1024
+        category:
+          $ref: '#/components/schemas/ServiceCategory'
+        billingType:
+          $ref: '#/components/schemas/BillingType'
+        pricingFormula:
+          type: string
+
+    ServiceTypeWithFactors:
+      allOf:
+        - $ref: '#/components/schemas/ServiceType'
+        - type: object
+          properties:
+            featureFactors:
+              type: array
+              items:
+                $ref: '#/components/schemas/ServiceFeatureFactor'
+
+    # Line Item
+    LineItem:
+      type: object
+      required:
+        - name
+        - cost
+        - serviceTypeId
+        - frequency
+      properties:
+        id:
+          type: integer
+          description: Line item ID
+        estimateId:
+          type: integer
+          description: Parent estimate ID
+        name:
+          type: string
+          maxLength: 255
+          description: Line item description
+        cost:
+          type: number
+          format: float
+          description: Individual line item cost
+        serviceTypeId:
+          type: integer
+          description: Reference to service type
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+
+    LineItemCreate:
+      type: object
+      required:
+        - name
+        - cost
+        - serviceTypeId
+        - frequency
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        cost:
+          type: number
+          format: float
+        serviceTypeId:
+          type: integer
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+
+    # Estimate
+    Estimate:
+      type: object
+      required:
+        - customerId
+        - contractorId
+        - serviceLocationId
+      properties:
+        id:
+          type: integer
+          description: Estimate ID
+        customerId:
+          type: integer
+          description: Customer ID
+        contractorId:
+          type: integer
+          description: Contractor ID
+        serviceLocationId:
+          type: integer
+          description: Service location ID
+        total:
+          type: number
+          format: float
+          description: Total estimate amount
+        createdDate:
+          type: string
+          format: date-time
+          description: Estimate creation date
+
+    EstimateCreate:
+      type: object
+      required:
+        - customerId
+        - contractorId
+        - serviceLocationId
+      properties:
+        customerId:
+          type: integer
+        contractorId:
+          type: integer
+        serviceLocationId:
+          type: integer
+        total:
+          type: number
+          format: float
+          default: 0
+
+    EstimateWithLineItems:
+      allOf:
+        - $ref: '#/components/schemas/Estimate'
+        - type: object
+          properties:
+            lineItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/LineItem'
+
+    EstimateCalculation:
+      type: object
+      properties:
+        id:
+          type: integer
+        total:
+          type: number
+          format: float
+          description: Sum of all line items
+        projectedAnnualCost:
+          type: number
+          format: float
+          description: Total projected annual cost based on frequencies
+
+    # Recurring Event
+    RecurringEvent:
+      type: object
+      required:
+        - estimateId
+        - scheduledDate
+        - frequency
+      properties:
+        id:
+          type: integer
+          description: Event ID
+        estimateId:
+          type: integer
+          description: Parent estimate ID
+        scheduledDate:
+          type: string
+          format: date-time
+          description: Scheduled date for this occurrence
+        status:
+          $ref: '#/components/schemas/EventStatus'
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+
+    RecurringEventCreate:
+      type: object
+      required:
+        - estimateId
+        - scheduledDate
+        - frequency
+      properties:
+        estimateId:
+          type: integer
+        scheduledDate:
+          type: string
+          format: date-time
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+        status:
+          $ref: '#/components/schemas/EventStatus'
+          default: SCHEDULED
+
+    RescheduleRequest:
+      type: object
+      required:
+        - newScheduledDate
+      properties:
+        newScheduledDate:
+          type: string
+          format: date-time
+          description: New scheduled date
+
+    # JSON Patch
+    JsonPatchOperation:
+      type: object
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          enum: [add, remove, replace, move, copy, test]
+        path:
+          type: string
+        value:
+          description: Value for add/replace/test operations
+        from:
+          type: string
+          description: Source path for move/copy operations
+
+  responses:
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+              title:
+                type: string
+              status:
+                type: integer
+              detail:
+                type: string
+              errors:
+                type: object
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+              title:
+                type: string
+              status:
+                type: integer
+              detail:
+                type: string
+
+    UnprocessableEntity:
+      description: Validation failed (422)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+              title:
+                type: string
+              status:
+                type: integer
+              detail:
+                type: string
+              errors:
+                type: object

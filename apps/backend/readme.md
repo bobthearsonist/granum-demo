@@ -25,7 +25,7 @@
   - [x] setup ~~EF~~ Fluent migrations to seed data
 - [x] come back to openapi page
 - [ ] use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
-- [ ] define an openapi spec to generate the rest of the controllers
+- [x] define an openapi spec to generate the rest of the controllers
 - [ ] use AI to spit out the rest of the service layers after we have one defined
 - [x] switch to ~~SQLite~~ Postgres for test containers
 - [ ] inject logger into service and controller layers
