@@ -19,10 +19,16 @@ run the server (this is just until its containerized)
 ```bash
 cd apps/backend
 dotnet run --project Granum.Api
-# API available at https://localhost:7001
+# API available at https://localhost:5134
 ```
 
-run the tests
+there are two pages served for OpenAPI
+- <http://localhost:5134/scalar/v1>
+- <http://localhost:5134/openapi/v1.json>
+
+## tests
+
+run the backend tests
 ```bash
 cd apps/backend
 # Run all tests

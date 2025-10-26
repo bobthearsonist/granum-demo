@@ -2,6 +2,7 @@ using FluentValidation;
 using Granum.Api.Features.User;
 using Granum.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using static Microsoft.AspNetCore.Builder.WebApplication;
 
 var builder = CreateBuilder(args);
@@ -10,8 +11,6 @@ var builder = CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
-//TODO add Scalar UI
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase("GranumDb")); //TODO use a factory so you can switch between providers for tests and production
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
@@ -34,6 +33,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
