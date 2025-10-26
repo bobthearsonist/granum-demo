@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Granum.Api.Features.ServiceLocation;
+using Granum.Api.Features.User;
 
 namespace Granum.IntegrationTests.Features.ServiceLocation
 {
@@ -7,7 +8,6 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
     public class ServiceLocationRepositoryIntegrationTests : RepositoryTestBase
     {
         private ServiceLocationRepository _repository;
-        private const int TestCustomerId = 1;
 
         [SetUp]
         public override async Task SetUpAsync()
@@ -16,13 +16,22 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
             _repository = new ServiceLocationRepository(DbContext);
         }
 
+        private async Task<int> CreateTestCustomer(string name = "Test Customer")
+        {
+            var customer = new Customer { Name = name };
+            DbContext.Customers.Add(customer);
+            await DbContext.SaveChangesAsync();
+            return customer.Id;
+        }
+
         [Test]
         public async Task AddAsync_WithValidServiceLocation_ReturnsAddedLocation()
         {
             // Arrange
+            var customerId = await CreateTestCustomer();
             var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = TestCustomerId,
+                CustomerId = customerId,
                 Name = "Main Office",
                 Address = "123 Main St"
             };
@@ -35,16 +44,17 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
             result.Id.Should().BeGreaterThan(0);
             result.Name.Should().Be("Main Office");
             result.Address.Should().Be("123 Main St");
-            result.CustomerId.Should().Be(TestCustomerId);
+            result.CustomerId.Should().Be(customerId);
         }
 
         [Test]
         public async Task GetByIdAsync_AfterAdding_ReturnsLocation()
         {
             // Arrange
+            var customerId = await CreateTestCustomer();
             var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = TestCustomerId,
+                CustomerId = customerId,
                 Name = "Warehouse",
                 Address = "456 Warehouse Ave"
             };
@@ -64,15 +74,16 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
         public async Task GetAllAsync_AfterAddingMultiple_ReturnsAllLocations()
         {
             // Arrange
+            var customerId = await CreateTestCustomer();
             var location1 = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = TestCustomerId,
+                CustomerId = customerId,
                 Name = "Location 1",
                 Address = "Address 1"
             };
             var location2 = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = TestCustomerId,
+                CustomerId = customerId,
                 Name = "Location 2",
                 Address = "Address 2"
             };
@@ -93,9 +104,10 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
         public async Task UpdateAsync_WithModifiedLocation_ReturnsUpdatedLocation()
         {
             // Arrange
+            var customerId = await CreateTestCustomer();
             var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = TestCustomerId,
+                CustomerId = customerId,
                 Name = "Original Name",
                 Address = "Original Address"
             };
@@ -142,21 +154,24 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
         public async Task GetByCustomerIdAsync_WithValidCustomerId_ReturnsCustomerLocations()
         {
             // Arrange
+            var customer1Id = await CreateTestCustomer("Customer 1");
+            var customer2Id = await CreateTestCustomer("Customer 2");
+            
             var location1 = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = TestCustomerId,
+                CustomerId = customer1Id,
                 Name = "Customer 1 Location 1",
                 Address = "Address 1"
             };
             var location2 = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = TestCustomerId,
+                CustomerId = customer1Id,
                 Name = "Customer 1 Location 2",
                 Address = "Address 2"
             };
             var location3 = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                CustomerId = 2,
+                CustomerId = customer2Id,
                 Name = "Customer 2 Location",
                 Address = "Address 3"
             };
@@ -165,12 +180,12 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
             await _repository.AddAsync(location3);
 
             // Act
-            var result = await _repository.GetByCustomerIdAsync(TestCustomerId);
+            var result = await _repository.GetByCustomerIdAsync(customer1Id);
 
             // Assert
             var locationList = result.ToList();
             locationList.Should().HaveCount(2);
-            locationList.Should().AllSatisfy(l => l.CustomerId.Should().Be(TestCustomerId));
+            locationList.Should().AllSatisfy(l => l.CustomerId.Should().Be(customer1Id));
             locationList.Should().Contain(l => l.Name == "Customer 1 Location 1");
             locationList.Should().Contain(l => l.Name == "Customer 1 Location 2");
         }

@@ -1,4 +1,5 @@
 using FluentMigrator.Runner;
+using Granum.Api.Features.User;
 using Granum.Api.Infrastructure;
 using Granum.Api.Migrations;
 using Microsoft.EntityFrameworkCore;
@@ -97,8 +98,11 @@ namespace Granum.IntegrationTests
 
         private static async Task ClearDatabaseAsync(IAppDbContext dbContext)
         {
-            // Clear Users table (PostgreSQL syntax)
+            // Clear tables in order respecting foreign key constraints
+            // ServiceLocations has FK to Users, so delete it first
+            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM \"ServiceLocations\"");
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM \"Users\"");
         }
+
     }
 }
