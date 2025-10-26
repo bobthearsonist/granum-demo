@@ -16,18 +16,15 @@ public class UserControllerBaseTests<TUser, TController>
     where TController : UserControllerBase<TUser>
 {
     private IUserService<TUser> _mockUserService;
-    private ILogger _mockLogger;
     private UserControllerBase<TUser> _controller;
 
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
         _mockUserService = Substitute.For<IUserService<TUser>>();
-        _mockLogger = Substitute.For<ILogger>();
         _controller = Substitute.ForPartsOf<UserControllerBase<TUser>>(
-            _mockUserService,
-            _mockLogger
-        );
+            _mockUserService
+            );
     }
 
     [OneTimeTearDown]

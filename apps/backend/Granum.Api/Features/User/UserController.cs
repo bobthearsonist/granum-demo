@@ -6,8 +6,7 @@ namespace Granum.Api.Features.User;
 
 [ApiController]
 public abstract class UserControllerBase<TUser>(
-    IUserService<TUser> userService,
-    ILogger logger) : Controller
+    IUserService<TUser> userService) : Controller
     where TUser : User
 {
     [HttpGet]
@@ -41,16 +40,16 @@ public abstract class UserControllerBase<TUser>(
 
 [Route("api/[controller]")]
 public class CustomersController(IUserService<Customer> service, ILogger<CustomersController> logger)
-    : UserControllerBase<Customer>(service, logger);
+    : UserControllerBase<Customer>(service);
 
 [Route("api/[controller]")]
 public class CustomerController(IUserService<Customer> service, ILogger<CustomersController> logger)
-    : UserControllerBase<Customer>(service, logger);
+    : UserControllerBase<Customer>(service);
 
 [Route("api/[controller]")]
 public class ContractorsController(IUserService<Contractor> service, ILogger<CustomersController> logger)
-    : UserControllerBase<Contractor>(service, logger);
+    : UserControllerBase<Contractor>(service);
 
 [Route("api/[controller]")]
 public class ContractorController(IUserService<Contractor> service, ILogger<CustomersController> logger)
-    : UserControllerBase<Contractor>(service, logger);
+    : UserControllerBase<Contractor>(service);

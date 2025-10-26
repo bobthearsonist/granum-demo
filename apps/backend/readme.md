@@ -15,8 +15,9 @@
 - [x] implement a service
 - [x] define fully generic UserController class
 - [x] setup exception handling middleware for restful repsonses with thin controllers
-- [ ] implement unit tests for each layer
-- [ ] implement integration tests (gherkin, taiko)
+- [x] implement unit tests for each layer
+  (up until this point AI tools had been used exclusively for reference. The code written is my own based on the architecture plans and patterns I have used in the past.)
+- [x] implement integration tests (gherkin, taiko)
 - [ ] come back to openapi page
 - [ ] use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 - [ ] define an openapi spec to generate the rest of the controllers
