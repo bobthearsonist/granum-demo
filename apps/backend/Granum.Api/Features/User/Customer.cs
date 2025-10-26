@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Granum.Api.Features.User;
 
 public class Customer : User
