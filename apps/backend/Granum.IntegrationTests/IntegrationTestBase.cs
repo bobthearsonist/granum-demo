@@ -1,9 +1,9 @@
 using System.Text;
-using System.Text.Json;
 using Granum.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Program = Granum.Api.Program;
 
 namespace Granum.IntegrationTests
@@ -15,11 +15,7 @@ namespace Granum.IntegrationTests
         private HttpClient Client { get; set; } = null!;
         private string DatabaseName { get; set; } = null!;
 
-        private static readonly JsonSerializerOptions JsonOptions = new()
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
+        private static readonly JsonSerializerSettings JsonSettings = MvcBuilderExtensions.GetJsonSerializerSettings();
 
         [SetUp]
         public virtual void SetUp()
@@ -53,14 +49,14 @@ namespace Granum.IntegrationTests
 
         protected async Task<HttpResponseMessage> PostJsonAsync<T>(string url, T content)
         {
-            var json = JsonSerializer.Serialize(content, JsonOptions);
+            var json = JsonConvert.SerializeObject(content, JsonSettings);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
             return await Client.PostAsync(url, httpContent);
         }
 
         protected async Task<HttpResponseMessage> PutJsonAsync<T>(string url, T content)
         {
-            var json = JsonSerializer.Serialize(content, JsonOptions);
+            var json = JsonConvert.SerializeObject(content, JsonSettings);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
             return await Client.PutAsync(url, httpContent);
         }
@@ -74,7 +70,7 @@ namespace Granum.IntegrationTests
         protected async Task<T?> DeserializeResponseAsync<T>(HttpResponseMessage response)
         {
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(json, JsonOptions);
+            return JsonConvert.DeserializeObject<T>(json, JsonSettings);
         }
 
         private static void RemoveDbContext<TContext>(IServiceCollection services)
