@@ -14,6 +14,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase("GranumDb")); //TODO use a factory so you can switch between providers for tests and production
+builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>)); //TODO use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 builder.Services.AddScoped(typeof(IUserService<>), typeof(UserService<>));
 
@@ -24,7 +25,7 @@ builder.Services
 
 using var app = builder.Build();
 using var scope = app.Services.CreateScope();
-var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+var dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
 dbContext.Database.EnsureCreated();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();

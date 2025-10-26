@@ -43,7 +43,17 @@ dotnet test -v d
 **`Granum.IntegrationTests`** - Controller-level integration tests
 - Uses `WebApplicationFactory` to test HTTP endpoints
 - NUnit test framework with FluentAssertions
-- In-memory database for test isolation
+- test containers for database integration
+
+```text
+IntegrationTests/
+├── IntegrationTestBase.cs (InMemory - for Controllers)
+├── RepositoryTestBase.cs (Testcontainers - NEW)
+├── Features/
+│   └── User/
+│       ├── UserControllerIntegrationTests.cs (existing, InMemory)
+│       └── UserRepositoryIntegrationTests.cs (NEW, Testcontainers)
+```
 
 I looked at Gherkin-based frameworks (SpecFlow) because ive used them in the past but decided it was not appropriate for a project.
 - The current API logic is currently simple

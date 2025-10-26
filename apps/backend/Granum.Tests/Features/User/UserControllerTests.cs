@@ -1,10 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
-using FluentValidation;
 using Granum.Api.Features.User;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 
 namespace Granum.Tests.Features.User;

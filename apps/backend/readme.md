@@ -19,7 +19,10 @@
   (up until this point AI tools had been used exclusively for reference. The code written is my own based on the architecture plans and patterns I have used in the past.)
 - [x] implement controller integration tests (gherkin, taiko)
 - [x] fix issues found by controller integration tests
-- [ ] implement database integration tests
+- [x] implement dbcontext interface
+- [x] implement database integration tests
+  - [x] use testcontainers to spin up a real database for integration tests
+  - [x] setup ~~EF~~ Fluent migrations to seed data
 - [ ] come back to openapi page
 - [ ] use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 - [ ] define an openapi spec to generate the rest of the controllers

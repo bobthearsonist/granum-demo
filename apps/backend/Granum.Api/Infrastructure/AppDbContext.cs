@@ -1,23 +1,36 @@
-using Granum.Api.Features.Estimate;
-using Granum.Api.Features.Location;
-using Granum.Api.Features.Service;
 using Granum.Api.Features.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace Granum.Api.Infrastructure;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) // TODO use interface and DbContext from EF Core
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IAppDbContext
 {
     public DbSet<Contractor> Contractors { get; set; }
     public DbSet<Customer> Customers { get; set; }
-    public DbSet<Estimate> Estimates { get; set; }
-    public DbSet<LineItem> LineItems { get; set; }
-    public DbSet<Frequency> Frequency { get; set; }
-    public DbSet<Location> Locations { get; set; }
+
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // Fallback for migrations and design-time scenarios
+        if (optionsBuilder.IsConfigured) return;
+        
+        optionsBuilder.UseSqlServer("Server=(local);Database=GranumDb;Trusted_Connection=true;");
+        
+        // Suppress pending model changes warning for testing scenarios
+        optionsBuilder.ConfigureWarnings(w => 
+            w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Configure Table Per Hierarchy (TPH) - map Customer and Contractor to Users table
+        modelBuilder.Entity<User>()
+            .ToTable("Users")
+            .HasDiscriminator<string>("Discriminator")
+            .HasValue<Customer>("Customer")
+            .HasValue<Contractor>("Contractor");
 
         // Only seed for in-memory database
         if (!Database.IsInMemory()) return;
