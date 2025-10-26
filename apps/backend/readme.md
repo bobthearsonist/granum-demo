@@ -23,12 +23,11 @@
 - [x] implement database integration tests
   - [x] use testcontainers to spin up a real database for integration tests
   - [x] setup ~~EF~~ Fluent migrations to seed data
-- [ ] come back to openapi page
+- [x] come back to openapi page
 - [ ] use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 - [ ] define an openapi spec to generate the rest of the controllers
 - [ ] use AI to spit out the rest of the service layers after we have one defined
-- [ ] switch to SQLite
-- [ ] switch to EF migrations
+- [x] switch to ~~SQLite~~ Postgres for test containers
 - [ ] inject logger into service and controller layers
 - [ ] set up docker for local development
 - [ ] set up CI/CD pipeline
