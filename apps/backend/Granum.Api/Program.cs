@@ -1,5 +1,6 @@
 using FluentValidation;
 using Granum.Api.Features.User;
+using Granum.Api.Features.ServiceLocation;
 using Granum.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -16,6 +17,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 builder.Services.AddScoped(typeof(IUserRepository<>), typeof(UserRepository<>)); //TODO use source-generated DI with attributes and Microsoft.Extensions.DependencyInjection.SourceGeneration
 builder.Services.AddScoped(typeof(IUserService<>), typeof(UserService<>));
+
+// ServiceLocation services
+builder.Services.AddScoped<IServiceLocationRepository, ServiceLocationRepository>();
+builder.Services.AddScoped<IServiceLocationService, ServiceLocationService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Granum.Api.Program>();
 builder.Services

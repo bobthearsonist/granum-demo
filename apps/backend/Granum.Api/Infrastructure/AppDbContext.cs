@@ -1,4 +1,5 @@
 using Granum.Api.Features.User;
+using Granum.Api.Features.ServiceLocation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Granum.Api.Infrastructure;
@@ -7,7 +8,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<Contractor> Contractors { get; set; }
     public DbSet<Customer> Customers { get; set; }
-
+    public DbSet<ServiceLocation> ServiceLocations { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
