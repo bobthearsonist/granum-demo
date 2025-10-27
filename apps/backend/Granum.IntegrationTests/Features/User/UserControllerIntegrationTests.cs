@@ -1,103 +1,102 @@
-using System.Net;
 using FluentAssertions;
-using Granum.Api.Features.User;
+using Granum.IntegrationTests.Generated;
 
-namespace Granum.IntegrationTests.Features.User
+namespace Granum.IntegrationTests.Features.UserTests
 {
     [TestFixture]
     public class UserControllerIntegrationTests : IntegrationTestBase
     {
-        private ICustomerApi _customerApi = null!;
-        private IContractorApi _contractorApi = null!;
+        private ICustomersApi _customerApi = null!;
+        private IContractorsApi _contractorApi = null!;
 
         [OneTimeSetUp]
         public override void OneTimeSetUp()
         {
             base.OneTimeSetUp();
-            _customerApi = CreateApi<ICustomerApi>();
-            _contractorApi = CreateApi<IContractorApi>();
+            _customerApi = CreateApi<ICustomersApi>();
+            _contractorApi = CreateApi<IContractorsApi>();
         }
 
         [Test]
         public async Task CreateCustomer_WithValidName_ReturnsCreated()
         {
-            var customer = new Customer { Name = "John Customer" };
+            var createRequest = new CustomerCreate { Name = "John Customer" };
 
-            var response = await _customerApi.CreateAsync(customer);
+            var result = await _customerApi.CreateCustomer(createRequest);
 
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            result.Should().NotBeNull();
+            result.Name.Should().Be("John Customer");
         }
 
         [Test]
         public async Task CreateCustomer_WithoutName_ReturnsBadRequest()
         {
-            var customer = new Customer { Name = null! };
+            var createRequest = new CustomerCreate { Name = null! };
 
-            var response = await _customerApi.CreateAsync(customer);
+            Func<Task> act = async () => await _customerApi.CreateCustomer(createRequest);
 
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            await act.Should().ThrowAsync<Refit.ApiException>()
+                .Where(e => e.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
         [Test]
         public async Task GetAllCustomers_ReturnsOkWithList()
         {
-            var response = await _customerApi.GetAllAsync();
+            var result = await _customerApi.GetCustomers();
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.Should().NotBeNull();
+            result.Should().NotBeNull();
         }
 
         [Test]
         public async Task GetAllCustomers_AfterCreatingCustomer_ReturnsListWithCustomer()
         {
-            var customer = new Customer { Name = "Customer 1" };
-            await _customerApi.CreateAsync(customer);
+            var createRequest = new CustomerCreate { Name = "Customer 1" };
+            await _customerApi.CreateCustomer(createRequest);
 
-            var response = await _customerApi.GetAllAsync();
+            var result = await _customerApi.GetCustomers();
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.Should().HaveCountGreaterThanOrEqualTo(1);
+            result.Should().HaveCountGreaterThanOrEqualTo(1);
         }
 
         [Test]
         public async Task CreateContractor_WithValidName_ReturnsCreated()
         {
-            var contractor = new Contractor { Name = "Bob Contractor" };
+            var createRequest = new ContractorCreate { Name = "Bob Contractor" };
 
-            var response = await _contractorApi.CreateAsync(contractor);
+            var result = await _contractorApi.CreateContractor(createRequest);
 
-            response.StatusCode.Should().Be(HttpStatusCode.Created);
+            result.Should().NotBeNull();
+            result.Name.Should().Be("Bob Contractor");
         }
 
         [Test]
         public async Task CreateContractor_WithoutName_ReturnsBadRequest()
         {
-            var contractor = new Contractor { Name = null! };
+            var createRequest = new ContractorCreate { Name = null! };
 
-            var response = await _contractorApi.CreateAsync(contractor);
+            Func<Task> act = async () => await _contractorApi.CreateContractor(createRequest);
 
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            await act.Should().ThrowAsync<Refit.ApiException>()
+                .Where(e => e.StatusCode == System.Net.HttpStatusCode.BadRequest);
         }
 
         [Test]
         public async Task GetAllContractors_ReturnsOkWithList()
         {
-            var response = await _contractorApi.GetAllAsync();
+            var result = await _contractorApi.GetContractors();
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.Should().NotBeNull();
+            result.Should().NotBeNull();
         }
 
         [Test]
         public async Task GetAllContractors_AfterCreatingContractor_ReturnsListWithContractor()
         {
-            var contractor = new Contractor { Name = "Contractor 1" };
-            await _contractorApi.CreateAsync(contractor);
+            var createRequest = new ContractorCreate { Name = "Contractor 1" };
+            await _contractorApi.CreateContractor(createRequest);
 
-            var response = await _contractorApi.GetAllAsync();
+            var result = await _contractorApi.GetContractors();
 
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            response.Content.Should().HaveCountGreaterThanOrEqualTo(1);
+            result.Should().HaveCountGreaterThanOrEqualTo(1);
         }
     }
 }

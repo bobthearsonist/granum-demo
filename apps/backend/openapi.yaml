@@ -110,7 +110,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Customer updated successfully
@@ -198,7 +198,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Contractor updated successfully
@@ -286,7 +286,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Service location updated successfully
@@ -414,7 +414,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Location feature updated successfully
@@ -523,7 +523,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Service type updated successfully
@@ -651,7 +651,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Service feature factor updated successfully
@@ -766,7 +766,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Estimate updated successfully
@@ -894,7 +894,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Line item updated successfully
@@ -1038,7 +1038,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/JsonPatchOperation'
+                type: object
       responses:
         '204':
           description: Recurring event updated successfully
@@ -1135,12 +1135,12 @@ components:
 
     FeatureType:
       type: string
-      enum: [TREES, DRIVEWAY, EDGES, BEDS, ACREAGE]
+      enum: [Trees, Driveway, Edges, Beds, Acreage]
       description: Type of location feature
 
     MeasurementUnit:
       type: string
-      enum: [COUNT, SQUARE_FEET, LINEAR_FEET, ACRES]
+      enum: [Count, SquareFeet, LinearFeet, Acres]
       description: Unit of measurement for features
 
     EventStatus:
@@ -1233,6 +1233,7 @@ components:
           $ref: '#/components/schemas/MeasurementUnit'
         description:
           type: string
+          nullable: true
           description: Optional description
 
     LocationFeatureCreate:
@@ -1564,24 +1565,6 @@ components:
           type: string
           format: date-time
           description: New scheduled date
-
-    # JSON Patch
-    JsonPatchOperation:
-      type: object
-      required:
-        - op
-        - path
-      properties:
-        op:
-          type: string
-          enum: [add, remove, replace, move, copy, test]
-        path:
-          type: string
-        value:
-          description: Value for add/replace/test operations
-        from:
-          type: string
-          description: Source path for move/copy operations
 
   responses:
     BadRequest:

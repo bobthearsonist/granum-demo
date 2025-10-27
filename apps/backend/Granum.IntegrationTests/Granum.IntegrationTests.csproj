@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,8 +23,17 @@
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-    <PackageReference Include="Refit" Version="7.2.22" />
-    <PackageReference Include="Refit.Newtonsoft.Json" Version="7.2.22" />
+    <PackageReference Include="Refit" Version="8.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
+    <PackageReference Include="Refit.Newtonsoft.Json" Version="8.0.0" />
+    <PackageReference Include="Refitter.SourceGenerator" Version="1.6.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="NSwag.MSBuild" Version="14.6.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Testcontainers" Version="3.7.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="3.7.0" />
   </ItemGroup>
@@ -33,11 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Granum.Api\Granum.Api.csproj" />
+    <AdditionalFiles Include=".refitter" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Refit\" />
+    <ProjectReference Include="..\Granum.Api\Granum.Api.csproj" />
   </ItemGroup>
 
   <Target Name="BuildApiBeforeTests" BeforeTargets="Build">
@@ -46,6 +56,10 @@
 
   <Target Name="PullTestContainerImages" BeforeTargets="Build">
     <Exec Command="docker pull postgres:17-alpine" IgnoreExitCode="true" ContinueOnError="true" />
+  </Target>
+
+  <Target Name="NSwag" BeforeTargets="CoreCompile">
+    <Exec WorkingDirectory="$(ProjectDir)" Command="$(NSwagExe_Net90) run nswag.json" />
   </Target>
 
 </Project>

@@ -1,0 +1,22 @@
+{
+  "openApiPath": "../openapi.yaml",
+  "namespace": "Granum.IntegrationTests.Generated",
+  "naming": {
+    "useOpenApiTitle": false,
+    "interfaceName": "IGranumApi"
+  },
+  "generateContracts": false,
+  "generateXmlDocCodeComments": false,
+  "generateOperationHeaders": true,
+  "typeAccessibility": "Public",
+  "useCancellationTokens": true,
+  "useIsoDateFormat": true,
+  "multipleInterfaces": "ByTag",
+  "dependencyInjectionSettings": {
+    "baseUrl": "http://localhost:5000"
+  },
+  "additionalNamespaces": [
+    "Microsoft.AspNetCore.JsonPatch",
+    "Microsoft.AspNetCore.JsonPatch.Operations"
+  ]
+}

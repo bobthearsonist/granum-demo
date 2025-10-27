@@ -1,5 +1,4 @@
 using FluentMigrator.Runner;
-using Granum.Api.Features.User;
 using Granum.Api.Infrastructure;
 using Granum.Api.Migrations;
 using Microsoft.EntityFrameworkCore;
