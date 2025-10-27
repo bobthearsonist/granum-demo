@@ -9,6 +9,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Contractor> Contractors { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<ServiceLocation> ServiceLocations { get; set; }
+    public DbSet<LocationFeature> LocationFeatures { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

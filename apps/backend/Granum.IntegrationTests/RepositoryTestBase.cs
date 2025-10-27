@@ -33,7 +33,7 @@ namespace Granum.IntegrationTests
             var connectionString = _postgresContainer.GetConnectionString();
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(connectionString)
-                    .ConfigureWarnings(w => 
+                    .ConfigureWarnings(w =>
                         w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
             services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 
@@ -99,7 +99,8 @@ namespace Granum.IntegrationTests
         private static async Task ClearDatabaseAsync(IAppDbContext dbContext)
         {
             // Clear tables in order respecting foreign key constraints
-            // ServiceLocations has FK to Users, so delete it first
+            // Delete child tables first, then parent tables
+            await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM \"LocationFeatures\"");
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM \"ServiceLocations\"");
             await dbContext.Database.ExecuteSqlRawAsync("DELETE FROM \"Users\"");
         }

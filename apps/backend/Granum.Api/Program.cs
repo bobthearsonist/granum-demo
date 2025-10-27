@@ -22,6 +22,10 @@ builder.Services.AddScoped(typeof(IUserService<>), typeof(UserService<>));
 builder.Services.AddScoped<IServiceLocationRepository, ServiceLocationRepository>();
 builder.Services.AddScoped<IServiceLocationService, ServiceLocationService>();
 
+// LocationFeature services
+builder.Services.AddScoped<ILocationFeatureRepository, LocationFeatureRepository>();
+builder.Services.AddScoped<ILocationFeatureService, LocationFeatureService>();
+
 builder.Services.AddValidatorsFromAssemblyContaining<Granum.Api.Program>();
 builder.Services
     .AddControllers()

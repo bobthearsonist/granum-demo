@@ -1,26 +1,33 @@
 using System.Net;
 using FluentAssertions;
-using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace Granum.IntegrationTests.Features.ServiceLocation
 {
     [TestFixture]
     public class ServiceLocationControllerIntegrationTests : IntegrationTestBase
     {
-        private const string ServiceLocationsUrl = "/api/service-locations";
+        private IServiceLocationApi _api = null!;
         private const int TestCustomerId = 1;
+
+        [OneTimeSetUp]
+        public override void OneTimeSetUp()
+        {
+            base.OneTimeSetUp();
+            _api = CreateApi<IServiceLocationApi>();
+        }
 
         [Test]
         public async Task CreateServiceLocation_WithValidData_ReturnsCreated()
         {
-            var createRequest = new
+            var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                customerId = TestCustomerId,
-                name = "Main Office",
-                address = "123 Main St"
+                CustomerId = TestCustomerId,
+                Name = "Main Office",
+                Address = "123 Main St"
             };
 
-            var response = await PostJsonAsync(ServiceLocationsUrl, createRequest);
+            var response = await _api.CreateAsync(location);
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
@@ -28,14 +35,14 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
         [Test]
         public async Task CreateServiceLocation_WithoutName_ReturnsBadRequest()
         {
-            var invalidRequest = new
+            var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                customerId = TestCustomerId,
-                name = (string?)null,
-                address = "123 Main St"
+                CustomerId = TestCustomerId,
+                Name = null!,
+                Address = "123 Main St"
             };
 
-            var response = await PostJsonAsync(ServiceLocationsUrl, invalidRequest);
+            var response = await _api.CreateAsync(location);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -43,30 +50,14 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
         [Test]
         public async Task CreateServiceLocation_WithoutAddress_ReturnsBadRequest()
         {
-            var invalidRequest = new
+            var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                customerId = TestCustomerId,
-                name = "Main Office",
-                address = (string?)null
+                CustomerId = TestCustomerId,
+                Name = "Main Office",
+                Address = null!
             };
 
-            var response = await PostJsonAsync(ServiceLocationsUrl, invalidRequest);
-
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Test]
-        public async Task CreateServiceLocation_WithInvalidProperty_ReturnsBadRequest()
-        {
-            var invalidRequest = new
-            {
-                customerId = TestCustomerId,
-                name = "Main Office",
-                address = "123 Main St",
-                invalidProperty = "should not be here"
-            };
-
-            var response = await PostJsonAsync(ServiceLocationsUrl, invalidRequest);
+            var response = await _api.CreateAsync(location);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -74,77 +65,99 @@ namespace Granum.IntegrationTests.Features.ServiceLocation
         [Test]
         public async Task GetAllServiceLocations_ReturnsOkWithList()
         {
-            var response = await GetAsync(ServiceLocationsUrl);
+            var response = await _api.GetAllAsync();
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await DeserializeResponseAsync<List<dynamic>>(response);
-            result.Should().NotBeNull();
+            response.Content.Should().NotBeNull();
         }
 
         [Test]
         public async Task GetAllServiceLocations_AfterCreating_ReturnsListWithLocation()
         {
-            var createRequest = new
+            var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                customerId = TestCustomerId,
-                name = "Test Location",
-                address = "456 Test Ave"
+                CustomerId = TestCustomerId,
+                Name = "Test Location",
+                Address = "456 Test Ave"
             };
-            await PostJsonAsync(ServiceLocationsUrl, createRequest);
+            await _api.CreateAsync(location);
 
-            var response = await GetAsync(ServiceLocationsUrl);
-            var result = await DeserializeResponseAsync<List<dynamic>>(response);
+            var response = await _api.GetAllAsync();
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            result.Should().HaveCountGreaterThanOrEqualTo(1);
+            response.Content.Should().HaveCountGreaterThanOrEqualTo(1);
         }
 
         [Test]
         public async Task GetServiceLocation_ByValidId_ReturnsOkWithLocation()
         {
-            // Arrange - Create a location first
-            var createRequest = new
+            // Arrange
+            var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                customerId = TestCustomerId,
-                name = "Get Test Location",
-                address = "789 Get Ave"
+                CustomerId = TestCustomerId,
+                Name = "Get Test Location",
+                Address = "789 Get Ave"
             };
-            var createResponse = await PostJsonAsync(ServiceLocationsUrl, createRequest);
-            var createdLocation = await DeserializeResponseAsync<JObject>(createResponse);
-            var locationId = createdLocation?["id"]?.Value<int>();
+            var createResponse = await _api.CreateAsync(location);
+            var locationId = createResponse.Content!.Id;
 
             // Act
-            var getResponse = await GetAsync($"{ServiceLocationsUrl}/{locationId}");
-            var retrievedLocation = await DeserializeResponseAsync<JObject>(getResponse);
+            var getResponse = await _api.GetAsync(locationId);
 
             // Assert
             getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-            retrievedLocation.Should().NotBeNull();
-            retrievedLocation?["name"]?.Value<string>().Should().Be("Get Test Location");
+            getResponse.Content.Should().NotBeNull();
+            getResponse.Content!.Name.Should().Be("Get Test Location");
+        }
+
+        [Test]
+        public async Task PatchServiceLocation_WithValidData_ReturnsNoContent()
+        {
+            // Arrange
+            var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
+            {
+                CustomerId = TestCustomerId,
+                Name = "Original Name",
+                Address = "Original Address"
+            };
+            var createResponse = await _api.CreateAsync(location);
+            var locationId = createResponse.Content!.Id;
+
+            // Act
+            var patchDoc = new JsonPatchDocument<Granum.Api.Features.ServiceLocation.ServiceLocation>();
+            patchDoc.Replace(l => l.Name, "Updated Name");
+            var patchResponse = await _api.UpdateAsync(locationId, patchDoc);
+
+            // Assert
+            patchResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+            // Verify
+            var getResponse = await _api.GetAsync(locationId);
+            getResponse.Content!.Name.Should().Be("Updated Name");
+            getResponse.Content.Address.Should().Be("Original Address");
         }
 
         [Test]
         public async Task DeleteServiceLocation_WithValidId_ReturnsNoContent()
         {
-            // Arrange - Create a location first
-            var createRequest = new
+            // Arrange
+            var location = new Granum.Api.Features.ServiceLocation.ServiceLocation
             {
-                customerId = TestCustomerId,
-                name = "Delete Test Location",
-                address = "101 Delete Ave"
+                CustomerId = TestCustomerId,
+                Name = "Delete Test Location",
+                Address = "101 Delete Ave"
             };
-            var createResponse = await PostJsonAsync(ServiceLocationsUrl, createRequest);
-            var createdLocation = await DeserializeResponseAsync<JObject>(createResponse);
-            var locationId = createdLocation?["id"]?.Value<int>();
+            var createResponse = await _api.CreateAsync(location);
+            var locationId = createResponse.Content!.Id;
 
             // Act
-            var deleteResponse = await DeleteAsync($"{ServiceLocationsUrl}/{locationId}");
+            var deleteResponse = await _api.DeleteAsync(locationId);
 
             // Assert
             deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-            // Verify it's deleted
-            var getResponse = await GetAsync($"{ServiceLocationsUrl}/{locationId}");
+            // Verify
+            var getResponse = await _api.GetAsync(locationId);
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }

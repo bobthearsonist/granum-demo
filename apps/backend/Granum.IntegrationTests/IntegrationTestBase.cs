@@ -1,9 +1,9 @@
-using System.Text;
 using Granum.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Refit;
 using Program = Granum.Api.Program;
 
 namespace Granum.IntegrationTests
@@ -12,13 +12,13 @@ namespace Granum.IntegrationTests
     public abstract class IntegrationTestBase
     {
         private WebApplicationFactory<Program> Factory { get; set; } = null!;
-        private HttpClient Client { get; set; } = null!;
+        protected HttpClient Client { get; set; } = null!;
         private string DatabaseName { get; set; } = null!;
 
-        private static readonly JsonSerializerSettings JsonSettings = MvcBuilderExtensions.GetJsonSerializerSettings();
+        protected static readonly JsonSerializerSettings JsonSettings = MvcBuilderExtensions.GetJsonSerializerSettings();
 
-        [SetUp]
-        public virtual void SetUp()
+        [OneTimeSetUp]
+        public virtual void OneTimeSetUp()
         {
             DatabaseName = $"IntegrationTest_{Guid.NewGuid()}";
 
@@ -40,37 +40,20 @@ namespace Granum.IntegrationTests
             Client = Factory.CreateClient();
         }
 
-        [TearDown]
-        public virtual void TearDown()
+        [OneTimeTearDown]
+        public virtual void OneTimeTearDown()
         {
             Client.Dispose();
             Factory.Dispose();
         }
 
-        protected async Task<HttpResponseMessage> PostJsonAsync<T>(string url, T content)
+        protected T CreateApi<T>() where T : class
         {
-            var json = JsonConvert.SerializeObject(content, JsonSettings);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            return await Client.PostAsync(url, httpContent);
-        }
-
-        protected async Task<HttpResponseMessage> PutJsonAsync<T>(string url, T content)
-        {
-            var json = JsonConvert.SerializeObject(content, JsonSettings);
-            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
-            return await Client.PutAsync(url, httpContent);
-        }
-
-        protected async Task<HttpResponseMessage> GetAsync(string url)
-            => await Client.GetAsync(url);
-
-        protected async Task<HttpResponseMessage> DeleteAsync(string url)
-            => await Client.DeleteAsync(url);
-
-        protected async Task<T?> DeserializeResponseAsync<T>(HttpResponseMessage response)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(json, JsonSettings);
+            var refitSettings = new RefitSettings
+            {
+                ContentSerializer = new NewtonsoftJsonContentSerializer(JsonSettings)
+            };
+            return RestService.For<T>(Client, refitSettings);
         }
 
         private static void RemoveDbContext<TContext>(IServiceCollection services)

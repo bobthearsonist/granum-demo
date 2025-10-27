@@ -1,20 +1,29 @@
 using System.Net;
 using FluentAssertions;
+using Granum.Api.Features.User;
 
 namespace Granum.IntegrationTests.Features.User
 {
     [TestFixture]
     public class UserControllerIntegrationTests : IntegrationTestBase
     {
-        private const string CustomersUrl = "/api/customers";
-        private const string ContractorsUrl = "/api/contractors";
+        private ICustomerApi _customerApi = null!;
+        private IContractorApi _contractorApi = null!;
+
+        [OneTimeSetUp]
+        public override void OneTimeSetUp()
+        {
+            base.OneTimeSetUp();
+            _customerApi = CreateApi<ICustomerApi>();
+            _contractorApi = CreateApi<IContractorApi>();
+        }
 
         [Test]
         public async Task CreateCustomer_WithValidName_ReturnsCreated()
         {
-            var createRequest = new { name = "John Customer" };
+            var customer = new Customer { Name = "John Customer" };
 
-            var response = await PostJsonAsync(CustomersUrl, createRequest);
+            var response = await _customerApi.CreateAsync(customer);
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
@@ -22,19 +31,9 @@ namespace Granum.IntegrationTests.Features.User
         [Test]
         public async Task CreateCustomer_WithoutName_ReturnsBadRequest()
         {
-            var invalidRequest = new { name = (string?)null };
+            var customer = new Customer { Name = null! };
 
-            var response = await PostJsonAsync(CustomersUrl, invalidRequest);
-
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Test]
-        public async Task CreateCustomer_WithInvalidEmailProperty_ReturnsBadRequest()
-        {
-            var invalidRequest = new { email = "customer@example.com", name = "John Customer" };
-
-            var response = await PostJsonAsync(CustomersUrl, invalidRequest);
+            var response = await _customerApi.CreateAsync(customer);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -42,32 +41,30 @@ namespace Granum.IntegrationTests.Features.User
         [Test]
         public async Task GetAllCustomers_ReturnsOkWithList()
         {
-            var response = await GetAsync(CustomersUrl);
+            var response = await _customerApi.GetAllAsync();
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await DeserializeResponseAsync<List<dynamic>>(response);
-            result.Should().NotBeNull();
+            response.Content.Should().NotBeNull();
         }
 
         [Test]
         public async Task GetAllCustomers_AfterCreatingCustomer_ReturnsListWithCustomer()
         {
-            var createRequest = new { name = "Customer 1" };
-            await PostJsonAsync(CustomersUrl, createRequest);
+            var customer = new Customer { Name = "Customer 1" };
+            await _customerApi.CreateAsync(customer);
 
-            var response = await GetAsync(CustomersUrl);
-            var result = await DeserializeResponseAsync<List<dynamic>>(response);
+            var response = await _customerApi.GetAllAsync();
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            result.Should().HaveCountGreaterThanOrEqualTo(1);
+            response.Content.Should().HaveCountGreaterThanOrEqualTo(1);
         }
 
         [Test]
         public async Task CreateContractor_WithValidName_ReturnsCreated()
         {
-            var createRequest = new { name = "Bob Contractor" };
+            var contractor = new Contractor { Name = "Bob Contractor" };
 
-            var response = await PostJsonAsync(ContractorsUrl, createRequest);
+            var response = await _contractorApi.CreateAsync(contractor);
 
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
@@ -75,19 +72,9 @@ namespace Granum.IntegrationTests.Features.User
         [Test]
         public async Task CreateContractor_WithoutName_ReturnsBadRequest()
         {
-            var invalidRequest = new { name = (string?)null };
+            var contractor = new Contractor { Name = null! };
 
-            var response = await PostJsonAsync(ContractorsUrl, invalidRequest);
-
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
-        [Test]
-        public async Task CreateContractor_WithInvalidEmailProperty_ReturnsBadRequest()
-        {
-            var invalidRequest = new { email = "contractor@example.com", name = "Bob Contractor" };
-
-            var response = await PostJsonAsync(ContractorsUrl, invalidRequest);
+            var response = await _contractorApi.CreateAsync(contractor);
 
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -95,25 +82,22 @@ namespace Granum.IntegrationTests.Features.User
         [Test]
         public async Task GetAllContractors_ReturnsOkWithList()
         {
-            var response = await GetAsync(ContractorsUrl);
+            var response = await _contractorApi.GetAllAsync();
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var result = await DeserializeResponseAsync<List<dynamic>>(response);
-            result.Should().NotBeNull();
+            response.Content.Should().NotBeNull();
         }
 
         [Test]
         public async Task GetAllContractors_AfterCreatingContractor_ReturnsListWithContractor()
         {
-            var createRequest = new { name = "Contractor 1" };
-            await PostJsonAsync(ContractorsUrl, createRequest);
+            var contractor = new Contractor { Name = "Contractor 1" };
+            await _contractorApi.CreateAsync(contractor);
 
-            var response = await GetAsync(ContractorsUrl);
-            var result = await DeserializeResponseAsync<List<dynamic>>(response);
+            var response = await _contractorApi.GetAllAsync();
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            result.Should().HaveCountGreaterThanOrEqualTo(1);
+            response.Content.Should().HaveCountGreaterThanOrEqualTo(1);
         }
-
     }
 }

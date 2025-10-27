@@ -22,6 +22,8 @@
     <PackageReference Include="NUnit" Version="4.2.2" />
     <PackageReference Include="NUnit.Analyzers" Version="4.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Refit" Version="7.2.22" />
+    <PackageReference Include="Refit.Newtonsoft.Json" Version="7.2.22" />
     <PackageReference Include="Testcontainers" Version="3.7.0" />
     <PackageReference Include="Testcontainers.PostgreSql" Version="3.7.0" />
   </ItemGroup>
@@ -32,6 +34,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Granum.Api\Granum.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Refit\" />
   </ItemGroup>
 
   <Target Name="BuildApiBeforeTests" BeforeTargets="Build">
