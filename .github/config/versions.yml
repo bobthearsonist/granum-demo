@@ -1,0 +1,23 @@
+# Centralized version management for CI/CD workflows
+# This file defines all tool versions used across the pipeline
+
+# .NET Configuration
+dotnet:
+  sdk_version: '9.0.x'
+  
+# Node.js Configuration
+node:
+  version: '20.x'
+  
+# Docker Configuration
+docker:
+  postgres_version: '17-alpine'
+  
+# GitHub Actions
+actions:
+  checkout_version: 'v4'
+  setup_dotnet_version: 'v4'
+  setup_node_version: 'v4'
+  upload_artifact_version: 'v4'
+  download_artifact_version: 'v4'
+  cache_version: 'v4'

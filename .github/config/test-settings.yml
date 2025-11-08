@@ -1,0 +1,37 @@
+# Test execution configuration for CI/CD workflows
+
+# Backend Test Settings
+backend:
+  unit_tests:
+    project: 'Granum.Tests'
+    timeout_minutes: 10
+    coverage: true
+    
+  integration_tests:
+    project: 'Granum.IntegrationTests'
+    timeout_minutes: 15
+    coverage: true
+    requires_docker: true
+    
+  coverage:
+    format: 'opencover'
+    exclude: '[*.Tests]*,[*.IntegrationTests]*'
+    output_dir: 'coverage'
+
+# Frontend Test Settings
+frontend:
+  unit_tests:
+    timeout_minutes: 10
+    coverage: true
+    
+  coverage:
+    reporters: ['text', 'lcov', 'cobertura']
+    output_dir: 'coverage'
+    
+# System Test Settings
+system_tests:
+  timeout_minutes: 15
+  backend_url: 'http://localhost:5134'
+  frontend_url: 'http://localhost:5173'
+  health_check_retries: 30
+  health_check_delay: 2
