@@ -1,0 +1,127 @@
+Based on my analysis of the OpenAPI spec and existing codebase, I've identified what needs to be completed. Here's the implementation plan ordered by complexity (least to most):
+
+## Current Status Analysis
+
+**✅ Fully Implemented:**
+- Customers/Contractors (User hierarchy) - Complete CRUD with JSON Patch support
+- ServiceLocations - Complete CRUD with JSON Patch and Delete
+
+**❌ Not Implemented (Need Full Implementation):**
+1. **Location Features** - Nested resource under ServiceLocations (`/api/service-locations/{locationId}/features`)
+2. **Service Types** - Main resource with nested Feature Factors (`/api/service-types`)
+3. **Service Feature Factors** - Nested resource under Service Types (`/api/service-types/{typeId}/factors`)
+4. **Estimates** - Complex resource with calculation endpoint (`/api/estimates`)
+5. **Line Items** - Nested resource under Estimates (`/api/estimates/{estimateId}/line-items`)
+6. **Recurring Events** - Resource with custom actions (complete, reschedule)
+
+## Implementation Order (Least → Most Complex)
+
+### Phase 1: Location Features (Simplest - Nested CRUD)
+**Complexity:** ⭐ Low
+- Nested under ServiceLocations
+- Standard CRUD operations
+- No complex business logic
+- Pattern: Follow ServiceLocation structure exactly
+
+**Files to Create:**
+- `ILocationFeatureRepository.cs`
+- `LocationFeatureRepository.cs`
+- `ILocationFeatureService.cs`
+- `LocationFeatureService.cs`
+- `LocationFeatureController.cs` (nested routes)
+- Unit tests
+- Integration tests
+
+### Phase 2: Service Types + Feature Factors (Medium - Nested with Relationships)
+**Complexity:** ⭐⭐ Medium
+- Service Types: Main CRUD resource
+- Feature Factors: Nested under Service Types
+- Relationship handling between the two
+- Pattern: Similar to ServiceLocation but with nested child resources
+
+**Files to Create:**
+- `ServiceType.cs` (model exists, may need updates)
+- `IServiceTypeRepository.cs`
+- `ServiceTypeRepository.cs`
+- `IServiceTypeService.cs`
+- `ServiceTypeService.cs`
+- `ServiceTypeController.cs`
+- `ServiceFeatureFactor.cs` (model)
+- `IServiceFeatureFactorRepository.cs`
+- `ServiceFeatureFactorRepository.cs`
+- `IServiceFeatureFactorService.cs`
+- `ServiceFeatureFactorService.cs`
+- `ServiceFeatureFactorController.cs` (nested routes)
+- Unit and integration tests for both
+
+### Phase 3: Estimates + Line Items (Complex - Business Logic)
+**Complexity:** ⭐⭐⭐ High
+- Estimates with relationships to Customer, Contractor, ServiceLocation
+- Line Items nested under Estimates
+- **Special endpoint:** `/api/estimates/{id}/calculate` - calculates total and projected annual cost
+- Business logic for cost calculations based on frequencies
+- Pattern: Similar structure but with calculation logic
+
+**Files to Create:**
+- `Estimate.cs` (exists, may need updates)
+- `IEstimateRepository.cs`
+- `EstimateRepository.cs`
+- `IEstimateService.cs`
+- `EstimateService.cs` (with calculation logic)
+- `EstimateController.cs` (with calculate endpoint)
+- `LineItem.cs` (model exists)
+- `ILineItemRepository.cs`
+- `LineItemRepository.cs`
+- `ILineItemService.cs`
+- `LineItemService.cs`
+- `LineItemController.cs` (nested routes)
+- Comprehensive unit and integration tests
+
+### Phase 4: Recurring Events (Most Complex - State Management)
+**Complexity:** ⭐⭐⭐⭐ Very High
+- Standard CRUD plus custom actions
+- **Special endpoints:**
+  - `/api/recurring-events/{id}/complete` - Mark as completed
+  - `/api/recurring-events/{id}/reschedule` - Reschedule event
+- Status management (SCHEDULED, COMPLETED, CANCELLED)
+- Query filtering by estimateId and status
+- Pattern: ServiceLocation + custom action endpoints
+
+**Files to Create:**
+- `RecurringEvent.cs` (model)
+- `IRecurringEventRepository.cs`
+- `RecurringEventRepository.cs`
+- `IRecurringEventService.cs`
+- `RecurringEventService.cs` (with business logic for status changes)
+- `RecurringEventController.cs` (with custom action endpoints)
+- Extensive unit and integration tests
+
+## Key Patterns to Follow
+
+### Architecture Patterns (from existing code):
+1. **Three-tier**: Controller → Service → Repository
+2. **Feature organization**: All files for a feature in `Features/{FeatureName}/`
+3. **Generic base classes**: Inherit from `Repository<T>`
+4. **Async throughout**: All I/O operations return `Task<T>`
+5. **JSON Patch** for updates (already working in User/ServiceLocation)
+6. **Validation**: Use `[ValidateModel]` attribute
+7. **Error handling**: Rely on `ExceptionHandlingMiddleware`
+
+### Coding Style Patterns:
+- Primary constructors with parameters
+- Expression-bodied members where appropriate
+- Proper HTTP status codes (201 for Create, 204 for Update/Delete, 404 for NotFound)
+- `CreatedAtAction` for POST responses
+- Repository implements interface, Service implements interface
+- Controllers use `[ApiController]` and `[Route]` attributes
+
+### Testing Patterns:
+- Unit tests in `Granum.Tests/Features/{Feature}/`
+- Integration tests in `Granum.IntegrationTests/Features/{Feature}/`
+- Follow existing test structure from User/ServiceLocation tests
+
+## Recommended Approach
+
+Start with Phase 1 (Location Features) since it's the simplest and will help validate the pattern works for nested resources. Then progressively work through Phases 2-4, with each phase building on the patterns established in previous phases.
+
+Would you like me to proceed with this plan? If so, please **toggle to Act mode** and I'll start implementing Phase 1 (Location Features).
