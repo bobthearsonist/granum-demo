@@ -20,20 +20,20 @@ jobs:
     with:
       test-type: unit
       coverage: true
-  
+
   backend-integration-tests:
     name: Backend Integration Tests
     uses: ./.github/workflows/backend-test.yml
     with:
       test-type: integration
       coverage: true
-  
+
   frontend-tests:
     name: Frontend Tests
     uses: ./.github/workflows/frontend-test.yml
     with:
       coverage: true
-  
+
   # Quality gate - ensure all tests pass before building
   quality-gate:
     name: Quality Gate
@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: All tests passed
         run: echo "✅ All tests passed successfully"
-  
+
   # Generate and report coverage
   coverage-report:
     name: Coverage Report
@@ -52,48 +52,48 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Download backend unit coverage
         uses: actions/download-artifact@v4
         with:
           name: backend-unit-coverage
           path: ./coverage/backend-unit
         continue-on-error: true
-      
+
       - name: Download backend integration coverage
         uses: actions/download-artifact@v4
         with:
           name: backend-integration-coverage
           path: ./coverage/backend-integration
         continue-on-error: true
-      
+
       - name: Download frontend coverage
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
           path: ./coverage/frontend
         continue-on-error: true
-      
+
       - name: Generate coverage summary
         id: coverage
         run: |
           echo "## 📊 Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Backend Unit Tests Coverage
           if [ -d "./coverage/backend-unit" ]; then
             echo "### Backend Unit Tests" >> $GITHUB_STEP_SUMMARY
             echo "✅ Coverage report generated" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Backend Integration Tests Coverage
           if [ -d "./coverage/backend-integration" ]; then
             echo "### Backend Integration Tests" >> $GITHUB_STEP_SUMMARY
             echo "✅ Coverage report generated" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           # Frontend Tests Coverage
           if [ -d "./coverage/frontend" ]; then
             echo "### Frontend Tests" >> $GITHUB_STEP_SUMMARY
@@ -106,10 +106,10 @@ jobs:
             fi
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
-          
+
           echo "---" >> $GITHUB_STEP_SUMMARY
           echo "*Coverage reports are informational only and do not block the build.*" >> $GITHUB_STEP_SUMMARY
-  
+
   # Build and push Docker images (only on main branch)
   build-backend-image:
     name: Build Backend Image
@@ -122,17 +122,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -142,7 +142,7 @@ jobs:
             type=ref,event=branch
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
-      
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -152,7 +152,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-  
+
   build-frontend-image:
     name: Build Frontend Image
     needs: quality-gate
@@ -164,17 +164,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -184,7 +184,7 @@ jobs:
             type=ref,event=branch
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
-      
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:

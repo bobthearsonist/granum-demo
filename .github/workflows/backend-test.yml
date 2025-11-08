@@ -18,21 +18,21 @@ jobs:
     name: Backend ${{ inputs.test-type }} Tests
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.test-type == 'integration' && 15 || 10 }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup backend environment
         uses: ./.github/actions/setup-backend
         with:
           dotnet-version: '9.0.x'
           working-directory: './apps/backend'
-      
+
       - name: Pull Docker images (integration tests only)
         if: inputs.test-type == 'integration'
         run: docker pull postgres:17-alpine
-      
+
       - name: Run ${{ inputs.test-type }} tests
         working-directory: ./apps/backend
         run: |
@@ -41,7 +41,7 @@ jobs:
           else
             PROJECT="Granum.IntegrationTests"
           fi
-          
+
           if [ "${{ inputs.coverage }}" == "true" ]; then
             dotnet test $PROJECT/$PROJECT.csproj \
               --configuration Release \
@@ -54,7 +54,7 @@ jobs:
               --configuration Release \
               --logger "trx;LogFileName=test-results.trx"
           fi
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -62,7 +62,7 @@ jobs:
           name: backend-${{ inputs.test-type }}-test-results
           path: ./apps/backend/**/test-results.trx
           retention-days: 7
-      
+
       - name: Upload coverage report
         if: inputs.coverage && always()
         uses: actions/upload-artifact@v4
