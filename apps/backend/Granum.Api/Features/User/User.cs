@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using Granum.Api.Infrastructure.Validation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Granum.Api.Features.User;
@@ -26,25 +27,30 @@ public class UserValidator<TUser> : AbstractValidator<TUser> where TUser : User
     }
 }
 
+/// <summary>
+/// Extension methods for User entity validation.
+/// </summary>
 public static class UserExtensions
 {
+    /// <summary>
+    /// Validates a User entity using Data Annotations and FluentValidation (if registered).
+    /// This method delegates to the generic EntityValidationExtensions.ValidateAsync method.
+    /// </summary>
+    /// <typeparam name="TUser">The type of user to validate. Must inherit from User.</typeparam>
+    /// <param name="user">The user instance to validate.</param>
+    /// <param name="services">The service provider used to resolve FluentValidation validators.</param>
+    /// <returns>
+    /// A tuple containing:
+    /// - IsValid: true if validation passes, false otherwise
+    /// - ErrorResult: An IActionResult with validation errors, or null if validation passes
+    /// </returns>
+    /// <remarks>
+    /// This method maintains backward compatibility while delegating to the generic validation infrastructure.
+    /// See <see cref="EntityValidationExtensions.ValidateAsync{TEntity}"/> for detailed validation behavior.
+    /// </remarks>
     public static async Task<(bool IsValid, IActionResult? ErrorResult)> ValidateAsync<TUser>(
         this TUser user, IServiceProvider services) where TUser : User
     {
-        // Data Annotations
-        var results = new List<ValidationResult>();
-        if (!Validator.TryValidateObject(user, new ValidationContext(user), results, true))
-            return (false, new BadRequestObjectResult(new ValidationProblemDetails(
-                results.ToDictionary(e => e.MemberNames.First(), e => new[] { e.ErrorMessage! }))));
-
-        // FluentValidation
-        if (services.GetService(typeof(IValidator<TUser>)) is not IValidator validator)
-            return (true, null);
-
-        var result = await validator.ValidateAsync(new ValidationContext<object>(user));
-        return result.IsValid
-            ? (true, null)
-            : (false, new UnprocessableEntityObjectResult(
-                new ValidationProblemDetails(result.ToDictionary()) { Status = 422 }));
+        return await EntityValidationExtensions.ValidateAsync(user, services);
     }
 }
