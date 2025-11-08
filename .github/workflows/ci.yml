@@ -20,6 +20,8 @@ jobs:
     with:
       test-type: unit
       coverage: true
+    permissions:
+      contents: read
 
   backend-integration-tests:
     name: Backend Integration Tests
@@ -27,18 +29,24 @@ jobs:
     with:
       test-type: integration
       coverage: true
+    permissions:
+      contents: read
 
   frontend-tests:
     name: Frontend Tests
     uses: ./.github/workflows/frontend-test.yml
     with:
       coverage: true
+    permissions:
+      contents: read
 
   # Quality gate - ensure all tests pass before building
   quality-gate:
     name: Quality Gate
     needs: [backend-unit-tests, backend-integration-tests, frontend-tests]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: All tests passed
         run: echo "✅ All tests passed successfully"
@@ -49,6 +57,8 @@ jobs:
     needs: [backend-unit-tests, backend-integration-tests, frontend-tests]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

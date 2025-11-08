@@ -18,6 +18,8 @@ jobs:
     name: Backend ${{ inputs.test-type }} Tests
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.test-type == 'integration' && 15 || 10 }}
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
