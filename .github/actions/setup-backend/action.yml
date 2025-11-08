@@ -1,0 +1,37 @@
+name: 'Setup Backend Environment'
+description: 'Setup .NET SDK and restore dependencies with caching'
+inputs:
+  dotnet-version:
+    description: '.NET SDK version'
+    required: false
+    default: '9.0.x'
+  working-directory:
+    description: 'Backend working directory'
+    required: false
+    default: './apps/backend'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+    
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: dotnet restore
+    
+    - name: Display .NET info
+      shell: bash
+      run: |
+        dotnet --version
+        dotnet --list-sdks

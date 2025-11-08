@@ -1,0 +1,74 @@
+name: Backend Tests
+
+on:
+  workflow_call:
+    inputs:
+      test-type:
+        description: 'Test type to run (unit or integration)'
+        required: true
+        type: string
+      coverage:
+        description: 'Generate coverage report'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  test:
+    name: Backend ${{ inputs.test-type }} Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.test-type == 'integration' && 15 || 10 }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup backend environment
+        uses: ./.github/actions/setup-backend
+        with:
+          dotnet-version: '9.0.x'
+          working-directory: './apps/backend'
+
+      - name: Pull Docker images (integration tests only)
+        if: inputs.test-type == 'integration'
+        run: docker pull postgres:17-alpine
+
+      - name: Run ${{ inputs.test-type }} tests
+        working-directory: ./apps/backend
+        run: |
+          if [ "${{ inputs.test-type }}" == "unit" ]; then
+            PROJECT="Granum.Tests"
+          else
+            PROJECT="Granum.IntegrationTests"
+          fi
+
+          if [ "${{ inputs.coverage }}" == "true" ]; then
+            dotnet test $PROJECT/$PROJECT.csproj \
+              --configuration Release \
+              --logger "trx;LogFileName=test-results.trx" \
+              --collect:"XPlat Code Coverage" \
+              --results-directory ./coverage \
+              -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          else
+            dotnet test $PROJECT/$PROJECT.csproj \
+              --configuration Release \
+              --logger "trx;LogFileName=test-results.trx"
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-${{ inputs.test-type }}-test-results
+          path: ./apps/backend/**/test-results.trx
+          retention-days: 7
+
+      - name: Upload coverage report
+        if: inputs.coverage && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-${{ inputs.test-type }}-coverage
+          path: ./apps/backend/coverage/**/coverage.opencover.xml
+          retention-days: 7
