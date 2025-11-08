@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/TestResults/
+**/coverage/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Test outputs
+**/*.trx
+**/TestResults/
+
+# Documentation
+*.md
+readme.md
+
+# CI/CD
+.github/

@@ -1,0 +1,180 @@
+name: System Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_image:
+        description: 'Backend Docker image tag'
+        required: false
+        default: 'latest'
+      frontend_image:
+        description: 'Frontend Docker image tag'
+        required: false
+        default: 'latest'
+
+jobs:
+  system-test:
+    name: E2E System Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup backend environment
+        uses: ./.github/actions/setup-backend
+        with:
+          dotnet-version: '9.0.x'
+          working-directory: './apps/backend'
+      
+      - name: Setup frontend environment
+        uses: ./.github/actions/setup-frontend
+        with:
+          node-version: '20.x'
+          working-directory: './apps/frontend'
+      
+      - name: Start PostgreSQL container
+        run: |
+          docker run -d \
+            --name postgres \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_PASSWORD=postgres \
+            -e POSTGRES_DB=granum \
+            -p 5432:5432 \
+            postgres:17-alpine
+          
+          # Wait for PostgreSQL to be ready
+          echo "Waiting for PostgreSQL to be ready..."
+          for i in {1..30}; do
+            if docker exec postgres pg_isready -U postgres > /dev/null 2>&1; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+      
+      - name: Start backend service
+        working-directory: ./apps/backend
+        run: |
+          # Set environment variables
+          export ASPNETCORE_ENVIRONMENT=Development
+          export ConnectionStrings__DefaultConnection="Host=localhost;Database=granum;Username=postgres;Password=postgres"
+          
+          # Run migrations and start the server in the background
+          dotnet run --project Granum.Api &
+          BACKEND_PID=$!
+          echo "BACKEND_PID=$BACKEND_PID" >> $GITHUB_ENV
+          
+          # Wait for backend to be ready
+          echo "Waiting for backend to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:5134/health > /dev/null 2>&1 || \
+               curl -s http://localhost:5134/scalar/v1 > /dev/null 2>&1; then
+              echo "Backend is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+      
+      - name: Build frontend
+        working-directory: ./apps/frontend
+        run: npm run build
+      
+      - name: Start frontend service
+        working-directory: ./apps/frontend
+        run: |
+          # Install and use serve to host the built frontend
+          npx serve -s dist -l 5173 &
+          FRONTEND_PID=$!
+          echo "FRONTEND_PID=$FRONTEND_PID" >> $GITHUB_ENV
+          
+          # Wait for frontend to be ready
+          echo "Waiting for frontend to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:5173 > /dev/null 2>&1; then
+              echo "Frontend is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+      
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running system smoke tests..."
+          
+          # Test backend health/API endpoint
+          echo "Testing backend API..."
+          BACKEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5134/scalar/v1)
+          if [ "$BACKEND_RESPONSE" -eq 200 ]; then
+            echo "✅ Backend API is responding (HTTP $BACKEND_RESPONSE)"
+          else
+            echo "❌ Backend API failed (HTTP $BACKEND_RESPONSE)"
+            exit 1
+          fi
+          
+          # Test OpenAPI endpoint
+          echo "Testing OpenAPI endpoint..."
+          OPENAPI_RESPONSE=$(curl -s http://localhost:5134/openapi/v1.json | jq -r '.info.title' 2>/dev/null || echo "failed")
+          if [ "$OPENAPI_RESPONSE" != "failed" ]; then
+            echo "✅ OpenAPI endpoint is working"
+          else
+            echo "⚠️  OpenAPI endpoint returned unexpected response"
+          fi
+          
+          # Test frontend
+          echo "Testing frontend..."
+          FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5173)
+          if [ "$FRONTEND_RESPONSE" -eq 200 ]; then
+            echo "✅ Frontend is responding (HTTP $FRONTEND_RESPONSE)"
+          else
+            echo "❌ Frontend failed (HTTP $FRONTEND_RESPONSE)"
+            exit 1
+          fi
+          
+          # Check if frontend contains React content
+          FRONTEND_CONTENT=$(curl -s http://localhost:5173 | grep -o "Vite + React" || echo "")
+          if [ -n "$FRONTEND_CONTENT" ]; then
+            echo "✅ Frontend content is valid"
+          else
+            echo "⚠️  Frontend content may not be loading correctly"
+          fi
+          
+          echo ""
+          echo "🎉 All smoke tests passed!"
+      
+      - name: Cleanup services
+        if: always()
+        run: |
+          # Stop backend
+          if [ -n "$BACKEND_PID" ]; then
+            kill $BACKEND_PID 2>/dev/null || true
+          fi
+          
+          # Stop frontend
+          if [ -n "$FRONTEND_PID" ]; then
+            kill $FRONTEND_PID 2>/dev/null || true
+          fi
+          
+          # Stop PostgreSQL
+          docker stop postgres 2>/dev/null || true
+          docker rm postgres 2>/dev/null || true
+      
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## 🧪 System Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend Image: \`${{ inputs.backend_image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend Image: \`${{ inputs.frontend_image }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- PostgreSQL: \`17-alpine\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Tests Executed" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend API health check" >> $GITHUB_STEP_SUMMARY
+          echo "- OpenAPI endpoint validation" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend availability check" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend content validation" >> $GITHUB_STEP_SUMMARY

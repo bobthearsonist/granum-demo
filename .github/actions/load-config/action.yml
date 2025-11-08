@@ -1,0 +1,36 @@
+name: 'Load Configuration'
+description: 'Load centralized configuration files (versions and test settings)'
+inputs:
+  config-type:
+    description: 'Configuration file to load (versions or test-settings)'
+    required: true
+outputs:
+  config:
+    description: 'Configuration data as JSON'
+    value: ${{ steps.load.outputs.config }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Load configuration file
+      id: load
+      shell: bash
+      run: |
+        CONFIG_FILE=".github/config/${{ inputs.config-type }}.yml"
+        
+        if [ ! -f "$CONFIG_FILE" ]; then
+          echo "Error: Configuration file $CONFIG_FILE not found"
+          exit 1
+        fi
+        
+        # Install yq if not present
+        if ! command -v yq &> /dev/null; then
+          echo "Installing yq..."
+          wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod +x /usr/local/bin/yq
+        fi
+        
+        # Convert YAML to JSON and output
+        CONFIG_JSON=$(yq eval -o=json "$CONFIG_FILE")
+        echo "config<<EOF" >> $GITHUB_OUTPUT
+        echo "$CONFIG_JSON" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
